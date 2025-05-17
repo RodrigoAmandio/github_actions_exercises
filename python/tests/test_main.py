@@ -5,7 +5,7 @@ from python.main import soma
 class TestStringMethods(unittest.TestCase):
 
     def test_soma(self):
-        x = 5
+        x = 4
         y = 8
 
         result = soma(x,y)
