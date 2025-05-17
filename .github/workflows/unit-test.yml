@@ -28,3 +28,8 @@ jobs:
         run: |
           coverage run -m unittest discover python/tests/
           coverage report
+      - name: Unit Test HTML 
+        run: |
+          echo "Generating HTML for checking out the test"
+          coverage html
+          
