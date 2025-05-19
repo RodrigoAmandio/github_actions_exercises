@@ -7,4 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Output Github Context
-        run: echo "${{ toJSON(github) }}"
+        run: |
+          echo "Imprimindo todas as variáveis do github"
+          echo "${{ toJSON(github) }}" # Imprime todas as variáveis de ambiente possíveis do Github
+      
+      - name: Output Github Env
+        run: | 
+          echo "Imprimindo a variável de ambiente"
+          echo "${{ github.env }}" #Imprime apenas a variável de ambiente
