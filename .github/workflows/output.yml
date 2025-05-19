@@ -13,5 +13,5 @@ jobs:
       
       - name: Output Github Env
         run: | 
-          echo "Imprimindo a variável de ambiente"
-          echo "${{ toJson(github.env) }}" # Imprime apenas a variável de ambiente
+          echo "Imprimindo a variável de repository"
+          echo "${{ toJson(github.repository) }}" # Imprime apenas a variável de repository
