@@ -24,7 +24,14 @@ jobs:
           pip install black isort mypy
 
       - name: Run Black (check only)
-        run: black --check .
+        run: |
+          echo "Checando a formatação do código com black"
+          black --check .
+      
+      - name: Run Isort (check only)
+        run: |
+          echo "Checando a ordenação de imports com isort"
+          isort --check .
   
   unit-test: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
     needs: check-formatting # Com esse comando, será possível uma execução em sequência. Sem ele, ambos ops steps seriam executados em paralelo
