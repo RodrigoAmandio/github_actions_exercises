@@ -32,6 +32,11 @@ jobs:
         run: |
           echo "Checando a ordenação de imports com isort"
           isort --check .
+
+      - name: Run Isort (check only)
+        run: |
+          echo "Checando a estrutura do código com mypy"
+          mypy --check python/main.py
   
   unit-test: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
     needs: check-formatting # Com esse comando, será possível uma execução em sequência. Sem ele, ambos ops steps seriam executados em paralelo
