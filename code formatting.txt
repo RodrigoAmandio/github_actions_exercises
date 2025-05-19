@@ -1,0 +1,5 @@
+pip install black isort mypy
+
+black .
+isort .
+mypy .
