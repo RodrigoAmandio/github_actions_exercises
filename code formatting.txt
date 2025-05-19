@@ -1,5 +1,9 @@
 pip install black isort mypy
 
-black .
-isort .
-mypy .
+No terminal, digite:
+    black .
+    isort .
+    mypy .
+
+Para rodar os comandos acima em um arquivo específico, basta rodar por exemplo:
+    black python\main.py

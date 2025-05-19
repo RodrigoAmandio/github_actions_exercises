@@ -27,6 +27,7 @@ jobs:
         run: black --check .
   
   unit-test: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
+    needs: check-formatting # Com esse comando, será possível uma execução em sequência. Sem ele, ambos ops steps seriam executados em paralelo
     runs-on: ubuntu-latest
 
     steps: 
