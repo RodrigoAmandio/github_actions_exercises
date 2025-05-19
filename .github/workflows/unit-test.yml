@@ -1,7 +1,7 @@
 name: Unit test
 
 on: 
-  push  # Será disparado sempre que um push ocorrer
+  [push,workflow_dispatch]  # Será disparado sempre que um push ocorrer ou então manualmente
 
 jobs: 
   check-formatting: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
