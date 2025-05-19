@@ -11,7 +11,7 @@ jobs:
           echo "Imprimindo todas as variáveis do github"
           echo "${{ toJSON(github) }}" # Imprime todas as variáveis de ambiente possíveis do Github
       
-      - name: Output Github Env
+      - name: Output Github Event Details
         run: | 
-          echo "Imprimindo a variável de repository"
-          echo "${{ toJson(github.repository) }}" # Imprime apenas a variável de repository
+          echo "Imprimindo detalhes do evento"
+          echo "${{ toJson(github.event) }}"
