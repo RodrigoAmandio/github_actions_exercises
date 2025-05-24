@@ -1,9 +1,6 @@
 import unittest
 
-from python.main import (
-    soma,
-    concat
-)
+from python.main import soma, concat
 
 
 class TestStringMethods(unittest.TestCase):
@@ -16,11 +13,10 @@ class TestStringMethods(unittest.TestCase):
 
         self.assertEqual(result, 12)
 
-    
     def test_concat(self):
         x = "Rodrigo"
         y = "Amandio"
 
-        result = concat(x,y)
+        result = concat(x, y)
 
         self.assertEqual(result, "Rodrigo-Amandio")
