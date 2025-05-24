@@ -1,6 +1,6 @@
 import unittest
 
-from python.main import soma, concat
+from python.main import concat, soma
 
 
 class TestStringMethods(unittest.TestCase):
