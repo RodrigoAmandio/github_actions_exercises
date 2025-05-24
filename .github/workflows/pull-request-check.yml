@@ -4,7 +4,7 @@ on:
   pull_request:
     types:
       - opened # Activity Type poderia ser assigned, unassigned, labeled, unlabeled, edited, closed, reopened, etc
-      - edited
+      - synchronize # Novos commits adicionados ao mesmo PR
 jobs: 
   check-formatting: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
     runs-on: ubuntu-latest
