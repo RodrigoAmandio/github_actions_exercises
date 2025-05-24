@@ -7,7 +7,8 @@ on:
       - synchronize # Novos commits adicionados ao mesmo PR
     
     branches:
-      - main # Apenas quando o PR tiver a main como destino
+      - develop # Apenas quando o PR tiver a main como destino
+      - main
       # feature/** Branches que se iniciam com feature/...
 
 jobs: 
