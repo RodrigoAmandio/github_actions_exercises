@@ -3,8 +3,8 @@ name: Unit test
 on: 
   push:  # Será disparado sempre que um push ocorrer ou então manualmente
     paths:
-      -'python/**'
-      
+      -'python/**' # Somente alterações na pasta python
+
   workflow_dispatch: # workflow_dispatch não suporta filtros de pasta
 
 jobs: 
