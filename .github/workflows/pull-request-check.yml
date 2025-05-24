@@ -5,6 +5,11 @@ on:
     types:
       - opened # Activity Type poderia ser assigned, unassigned, labeled, unlabeled, edited, closed, reopened, etc
       - synchronize # Novos commits adicionados ao mesmo PR
+    
+    branches:
+      - main # Apenas quando o PR tiver a main como destino
+      # feature/** Branches que se iniciam com feature/...
+
 jobs: 
   check-formatting: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
     runs-on: ubuntu-latest

@@ -5,6 +5,9 @@ on:
     paths:
       - 'python/**' # Somente alterações na pasta python. 
 
+    paths-ignore:
+      - '.mypy_cache' # Qualquer mudança aqui será ignorada pelo workflow
+
   workflow_dispatch: # workflow_dispatch não suporta filtros de pasta
 
 jobs: 
