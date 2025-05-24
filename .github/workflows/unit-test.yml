@@ -1,7 +1,11 @@
 name: Unit test
 
 on: 
-  [push,workflow_dispatch]  # Será disparado sempre que um push ocorrer ou então manualmente
+  push:  # Será disparado sempre que um push ocorrer ou então manualmente
+    paths:
+      -'python/**'
+      
+  workflow_dispatch: # workflow_dispatch não suporta filtros de pasta
 
 jobs: 
   check-formatting: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
