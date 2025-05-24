@@ -6,8 +6,13 @@ def soma(x, y):
 
 
 def concat(first_word, second_word):
+    """
+    Concatena duas palavras e as retorna como uma string única
+    """
 
     return first_word + "-" + second_word
 
-  
-print(f"Documentação da função soma: {soma.__doc__}")
+
+print(soma.__doc__)
+
+print(concat.__doc__)
