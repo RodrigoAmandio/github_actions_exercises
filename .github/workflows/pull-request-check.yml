@@ -92,7 +92,7 @@ jobs:
         run: cat coverage_report.txt
       
       - name: Deploy
-        run: echo "Fazendo deploy do recurso, simulado uma etapa de CD"
+        run: echo "Fazendo deploy do recurso, simulando uma etapa de CD após fechamento com sucesso de Pull Request"
 
 
 
