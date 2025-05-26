@@ -72,11 +72,28 @@ jobs:
           coverage run -m unittest discover python/tests/
           coverage report > coverage_report.txt
 
-      - name: Upload coverage report
+      - name: Upload coverage report # Esta operaçao é chamada de Upload, pois envia o arquivo para o fluxo para uso em outras etapas
         uses: actions/upload-artifact@v4
         with:
           name: coverage-report
-          path: coverage_report.txt
+          path: coverage_report.txt # Será liberado este arquivo para download ao final do workflow
+
+  deploy:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Github Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+        
+      - name: Output Coverage Content
+        run: cat coverage-report.txt
+      
+      - name: Deploy
+        run: echo "Fazendo deploy do recurso, simulado uma etapa de CD"
+
+
 
         
           
