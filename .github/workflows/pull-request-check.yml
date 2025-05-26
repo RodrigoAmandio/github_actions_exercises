@@ -70,7 +70,7 @@ jobs:
       - name: Run tests with coverage
         run: | # O resultado do teste unitário será salvo em um arquivo coverage_report.txt na raiz do repo e disponibilizado com artefato para download, posteriormente
           coverage run -m unittest discover python/tests/
-          overage report > coverage_report.txt
+          coverage report > coverage_report.txt
 
       - name: Upload coverage report
         uses: actions/upload-artifact@v4
