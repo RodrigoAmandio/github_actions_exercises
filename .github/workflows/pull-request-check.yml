@@ -89,7 +89,7 @@ jobs:
           path: . # Irá fazer o download do artefato para a raiz
         
       - name: Output Coverage Content
-        run: cat coverage-report.txt
+        run: cat coverage_report.txt
       
       - name: Deploy
         run: echo "Fazendo deploy do recurso, simulado uma etapa de CD"
