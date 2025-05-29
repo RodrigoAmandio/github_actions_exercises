@@ -49,7 +49,11 @@ jobs:
   unit-test: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
     needs: check-formatting # Com esse comando, será possível uma execução em sequência. Sem ele, ambos ops steps seriam executados em paralelo
     runs-on: ubuntu-latest
-
+    outputs:
+      script-file: ${{ steps.publish.outputs.file_name }} # Estrutura: steps.id.outputs.output_name
+      # script-file é um nome que pode ser definido a critério do usuário
+      user-name: ${{ steps.publish.outputs.user_name }}
+      
     steps: 
       - name: Checkout code
         uses: actions/checkout@v3 # GitHub Action used in workflows to check out your repository's code so subsequent steps in the workflow can access the files in it. It is like a download of the files.
@@ -77,6 +81,14 @@ jobs:
         with:
           name: coverage-report
           path: coverage_report.txt # Será liberado este arquivo para download ao final do workflow
+      
+      - name: Publish File Name # Simula uma situação em que é possível disponibilizar a variável do nome do arquivo para uma etapa posterior, por exemplo, CD
+        id: publish
+        run: |
+          result=$(find python -maxdepth 1 -type f -name '*.py' -exec basename {} \;) 
+          echo "file_name=$result" >> $GITHUB_OUTPUT
+          echo "user_name=Rodrigo Amandio" >> GITHUB_OUTPUT
+
 
   deploy: # Essa etapa irá simular a obtençao de um artefato de uma etapa para a outra, para uso em um possível CD após fechamento de Pull Request
     needs: unit-test
@@ -93,6 +105,12 @@ jobs:
       
       - name: Deploy
         run: echo "Fazendo deploy do recurso, simulando uma etapa de CD após fechamento com sucesso de Pull Request"
+      
+      - name: Output Varibles From Previous unit-test
+        run: |
+          echo "File Name=${{ needs.unit-test.outputs.script-file }}"
+          echo "User Name=${{ needs.unit-test.outputs.user-name }}"
+
 
 
 
