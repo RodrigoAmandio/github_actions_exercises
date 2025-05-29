@@ -13,10 +13,17 @@ on:
 
 jobs: 
   check-formatting: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest # Cada job roda em uma máquina a parte. Este passo precisa ser repetido em cada um
     steps:
-      - name: Checkout code
+      - name: Checkout code # Este passo também necessita ser repetido a cada job
         uses: actions/checkout@v3 # GitHub Action used in workflows to check out your repository's code so subsequent steps in the workflow can access the files in it. It is like a download of the files.
+
+      # Este step de cache precisa ser repetido em todos os steps que necessitam reaproveitar as dependências para que seja funcional
+      - name: Caching Dependencies # This caches the downloaded packages in ~/.cache/pip. If requirements.txt hasn’t changed, it reuses the cache.
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip # What to cache (file or folder path)
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }} # A unique identifier for the cache (e.g., based on OS and hash of requirements.txt)
 
       - name: Begin
         run: echo "Beginning to check code formatting"
@@ -29,7 +36,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install black isort mypy
+          pip install -r requirements.txt
 
       - name: Run Black (check only)
         run: |
@@ -41,7 +48,7 @@ jobs:
           echo "Checando a ordenação de imports com isort"
           isort --check .
 
-      - name: Run Isort (check only)
+      - name: Run Mypy (check only)
         run: |
           echo "Checando a estrutura do código com mypy"
           mypy --check python/main.py
@@ -55,14 +62,20 @@ jobs:
       user-name: ${{ steps.publish.outputs.user_name }}
       
     steps: 
+      - name: Caching Dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
       - name: Checkout code
-        uses: actions/checkout@v3 # GitHub Action used in workflows to check out your repository's code so subsequent steps in the workflow can access the files in it. It is like a download of the files.
+        uses: actions/checkout@v3
 
       - name: Begin
         run: echo "Beginning unit tests on main.py"
 
       - name: Set up Python
-        uses: actions/setup-python@v4 # Instalar a linguagem que se deseja usar. Neste caso, python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'  # or any version you need
 
@@ -82,7 +95,7 @@ jobs:
           name: coverage-report
           path: coverage_report.txt # Será liberado este arquivo para download ao final do workflow
       
-      - name: Publish File Name # Simula uma situação em que é possível disponibilizar a variável do nome do arquivo para uma etapa posterior, por exemplo, CD
+      - name: Publish Execution Variables # Simula uma situação em que é possível disponibilizar a variável do nome do arquivo para uma etapa posterior, por exemplo, CD
         id: publish
         run: |
           result=$(find python -maxdepth 1 -type f -name '*.py' -exec basename {} \;) 
