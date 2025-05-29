@@ -87,7 +87,7 @@ jobs:
         run: |
           result=$(find python -maxdepth 1 -type f -name '*.py' -exec basename {} \;) 
           echo "file_name=$result" >> $GITHUB_OUTPUT
-          echo "user_name=Rodrigo Amandio" >> GITHUB_OUTPUT
+          echo "user_name=Rodrigo Amandio" >> $GITHUB_OUTPUT
 
 
   deploy: # Essa etapa irá simular a obtençao de um artefato de uma etapa para a outra, para uso em um possível CD após fechamento de Pull Request
