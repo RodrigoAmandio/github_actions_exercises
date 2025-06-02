@@ -18,6 +18,8 @@ on:
 env:
   AWS_REGION: us-east-1
   ENVIRONMENT: production
+  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 jobs: 
   check-formatting: # Este espaço pode receber qualquer nome. Será o nome que aparecerá na esteira
@@ -115,7 +117,7 @@ jobs:
           echo "user_name=Rodrigo Amandio" >> $GITHUB_OUTPUT
 
 
-  deploy: # Essa etapa irá simular a obtençao de um artefato de uma etapa para a outra, para uso em um possível CD após fechamento de Pull Request
+  deploy-simulation: # Essa etapa irá simular a obtençao de um artefato de uma etapa para a outra, para uso em um possível CD após fechamento de Pull Request
     needs: unit-test
     runs-on: ubuntu-latest
     steps:
@@ -140,6 +142,21 @@ jobs:
         run: |
           echo "Primeira forma de usar uma variável de ambiente: ${{env.AWS_REGION}}"
           echo "Segunda forma de usar uma variável de ambiente: $ENVIRONMENT"
+    
+  aws-interaction:
+    needs: deploy-simulation
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: $AWS_ACCESS_KEY_ID
+          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
+          aws-region: $AWS_REGION
+        
+      - name: List all S3 buckets
+        run: aws s3 ls
+
 
 
 
