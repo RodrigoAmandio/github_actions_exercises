@@ -11,14 +11,25 @@ on:
       - main
       # feature/** Branches que se iniciam com feature/...
 
+# Environment Variables
+# Quando declaradas no início, ficam disponíveis para todas as etapas do workflow
+# Podem também ser declaradas dentro de cada respectivo job
+# Environment Variables podem ser usadas dentro dos arquivos de workflow como também arquivos como .py para lógica de código, ex: os.environ['DB_HOST']
+env:
+  AWS_REGION: us-east-1
+  ENVIRONMENT: production
+
 jobs: 
-  check-formatting: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
+  check-formatting: # Este espaço pode receber qualquer nome. Será o nome que aparecerá na esteira
     runs-on: ubuntu-latest # Cada job roda em uma máquina a parte. Este passo precisa ser repetido em cada um
     steps:
       - name: Checkout code # Este passo também necessita ser repetido a cada job
         uses: actions/checkout@v3 # GitHub Action used in workflows to check out your repository's code so subsequent steps in the workflow can access the files in it. It is like a download of the files.
 
       # Este step de cache precisa ser repetido em todos os steps que necessitam reaproveitar as dependências para que seja funcional
+      # O cache é usado inclusive entre diferentes execuções de workflows, agilizando o trabalho
+      # As dependências somente serão instaladas novamente caso o conteúdo de requirements.txt seja alterado
+      # Não use cache para artifacts
       - name: Caching Dependencies # This caches the downloaded packages in ~/.cache/pip. If requirements.txt hasn’t changed, it reuses the cache.
         uses: actions/cache@v3
         with:
@@ -53,7 +64,8 @@ jobs:
           echo "Checando a estrutura do código com mypy"
           mypy --check python/main.py
   
-  unit-test: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
+
+  unit-test:
     needs: check-formatting # Com esse comando, será possível uma execução em sequência. Sem ele, ambos ops steps seriam executados em paralelo
     runs-on: ubuntu-latest
     outputs:
@@ -119,10 +131,15 @@ jobs:
       - name: Deploy
         run: echo "Fazendo deploy do recurso, simulando uma etapa de CD após fechamento com sucesso de Pull Request"
       
-      - name: Output Varibles From Previous unit-test
+      - name: Output Varibles From Previous unit-test # needs.nome-step.output.nome-output
         run: |
           echo "File Name=${{ needs.unit-test.outputs.script-file }}"
           echo "User Name=${{ needs.unit-test.outputs.user-name }}"
+      
+      - name: Output Environment Variables
+        run: |
+          echo "Primeira forma de usar uma variável de ambiente: ${{env.AWS_REGION}}"
+          echo "Segunda forma de usar uma variável de ambiente: $ENVIRONMENT"
 
 
 
