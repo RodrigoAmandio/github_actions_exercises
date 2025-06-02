@@ -142,6 +142,7 @@ jobs:
           echo "Segunda forma de usar uma variável de ambiente (Não funciona em with): $ENVIRONMENT"
     
   aws-interaction:
+    environment: dev # Ambiente criado no Github para indicar de onde virão as secrets. É possível criar múltiplos ambientes e usá-los para obter as variáveis dinamicamente. É possível determinar um revisor para os PRs, Prevent self-review, Set a times, etc
     needs: deploy-simulation
     runs-on: ubuntu-latest
     steps:
