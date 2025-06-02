@@ -18,8 +18,6 @@ on:
 env:
   AWS_REGION: us-east-1
   ENVIRONMENT: production
-  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
-  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
 jobs: 
   check-formatting: # Este espaço pode receber qualquer nome. Será o nome que aparecerá na esteira
@@ -141,7 +139,7 @@ jobs:
       - name: Output Environment Variables
         run: |
           echo "Primeira forma de usar uma variável de ambiente: ${{env.AWS_REGION}}"
-          echo "Segunda forma de usar uma variável de ambiente: $ENVIRONMENT"
+          echo "Segunda forma de usar uma variável de ambiente (Não funciona em with): $ENVIRONMENT"
     
   aws-interaction:
     needs: deploy-simulation
@@ -150,12 +148,13 @@ jobs:
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: $AWS_ACCESS_KEY_ID
-          aws-secret-access-key: $AWS_SECRET_ACCESS_KEY
-          aws-region: $AWS_REGION
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
         
       - name: List all S3 buckets
         run: aws s3 ls
+ 
 
 
 
