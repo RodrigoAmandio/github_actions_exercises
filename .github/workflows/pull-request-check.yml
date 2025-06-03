@@ -155,7 +155,7 @@ jobs:
         
       - name: List all S3 buckets
         id: list-buckets
-        run: aws s3 lss
+        run: aws s3 ls
       - name: Output Exception
         # failure(), success(), always() e cancelled()
         if: failure() && steps.list-buckets.outcome == 'failure'
