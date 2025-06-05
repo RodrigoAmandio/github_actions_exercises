@@ -31,7 +31,6 @@ jobs:
       # As dependências somente serão instaladas novamente caso o conteúdo de requirements.txt seja alterado
       # Não use cache para artifacts
       - name: Caching Dependencies # This caches the downloaded packages in ~/.cache/pip. If requirements.txt hasn’t changed, it reuses the cache.
-        id: cache
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip # What to cache (file or folder path)
@@ -77,7 +76,6 @@ jobs:
       
     steps: 
       - name: Caching Dependencies
-        id: cache
         uses: actions/cache@v3
         with:
           path: ~/.cache/pip
@@ -95,7 +93,6 @@ jobs:
           python-version: '3.10'  # or any version you need
 
       - name: Install dependencies
-        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
