@@ -23,8 +23,8 @@ jobs:
   check-formatting: # Este espaço pode receber qualquer nome. Será o nome que aparecerá na esteira
   
   continue-on-error: true # Em um job matrix(iterações), se uma das iteraçoes falhar, as demais serão canceladas. Para prevenir isso, o comando continue-on-error é importante
-  r
-  uns-on: ubuntu-latest # Cada job roda em uma máquina a parte. Este passo precisa ser repetido em cada um
+
+  runs-on: ubuntu-latest # Cada job roda em uma máquina a parte. Este passo precisa ser repetido em cada um
     strategy:
       matrix: # Funciona como um looping onde o código itera com as variáveis dentro de uma lista
         python-version: [3.10, 3.11]
