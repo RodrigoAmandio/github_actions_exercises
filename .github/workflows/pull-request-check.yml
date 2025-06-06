@@ -155,6 +155,14 @@ jobs:
     secrets: # Passa as secrets para o workflow reutilizável
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  
+  after-deploy:
+    needs: aws-interaction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output result from AWS I
+        run: echo "Message from AWS interaction:${{ needs.aws-interaction.outputs.result-message }}"
+
 
 
 
