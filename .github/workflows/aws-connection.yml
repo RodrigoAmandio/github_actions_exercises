@@ -1,5 +1,11 @@
 name: AWS interaction
-on: workflow_call # Permite que este workflow seja usado em outros fluxos, como POO
+on: 
+  workflow_call: # Permite que este workflow seja usado em outros fluxos, como POO
+    inputs:
+      aws-region:
+        required: true
+        type: string
+        default: us-east-1
 jobs:
   aws-interaction:
     runs-on: ubuntu-latest
@@ -10,7 +16,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
+          aws-region: ${{ inputs.aws-region }}
         
       - name: List all S3 buckets
         id: list-buckets

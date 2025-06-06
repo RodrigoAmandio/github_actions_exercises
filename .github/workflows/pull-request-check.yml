@@ -16,7 +16,6 @@ on:
 # Podem também ser declaradas dentro de cada respectivo job
 # Environment Variables podem ser usadas dentro dos arquivos de workflow como também arquivos como .py para lógica de código, ex: os.environ['DB_HOST']
 env:
-  AWS_REGION: us-east-1
   ENVIRONMENT: production
 
 jobs: 
@@ -145,13 +144,14 @@ jobs:
       
       - name: Output Environment Variables
         run: |
-          echo "Primeira forma de usar uma variável de ambiente: ${{env.AWS_REGION}}"
+          echo "Primeira forma de usar uma variável de ambiente: ${{env.ENVIRONMENT}}"
           echo "Segunda forma de usar uma variável de ambiente (Não funciona em with): $ENVIRONMENT"
     
   aws-interaction:
     needs: deploy-simulation
     uses: ./.github/workflows/aws-connection.yml # Endereço de onde está o workflow que será aproveitado aqui
- 
+    with:
+      aws-region: "us-east-1" #Normalmente passado como hardcoded
 
 
 
