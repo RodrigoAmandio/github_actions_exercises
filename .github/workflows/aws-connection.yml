@@ -1,0 +1,22 @@
+name: AWS interaction
+on: workflow_call # Permite que este workflow seja usado em outros fluxos, como POO
+jobs:
+  aws-interaction:
+    runs-on: ubuntu-latest
+    environment: dev # Ambiente criado no Github para indicar de onde virão as secrets. É possível criar múltiplos ambientes como dev, homolog e prod e usá-los para obter as variáveis dinamicamente. É possível determinar um revisor para o step, prevenir auto-revisão, determinar um tempo para que o step seja executado (Como ocorre na GMUD), etc
+    steps:
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+        
+      - name: List all S3 buckets
+        id: list-buckets
+        run: aws s3 ls
+      - name: Output Exception
+        # failure(), success(), always() e cancelled()
+        if: failure() && steps.list-buckets.outcome == 'failure'
+        run: echo "Houve uma falha ao listar os buckets na AWS"
+ 
