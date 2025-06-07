@@ -33,6 +33,7 @@ jobs:
         uses: actions/checkout@v3 # GitHub Action used in workflows to check out your repository's code so subsequent steps in the workflow can access the files in it. It is like a download of the files.
 
         # Uso de custom actions como parte de um job. Útil para tarefas repetitivas ao longo do código
+        # Sempre use abaixo do checkout
       - name: Load and Cache Dependencies
         uses: ./.github/actions/cached_dependencies # Não é necessário apontar o arquivo neste caso. O Github sempre vai buscar o arquivo actions.yml no prefixo informado.
 
@@ -69,11 +70,11 @@ jobs:
       user-name: ${{ steps.publish.outputs.user_name }}
       
     steps: 
-      - name: Load and Cache Dependencies
-        uses: ./.github/actions/cached_dependencies
-
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Load and Cache Dependencies
+        uses: ./.github/actions/cached_dependencies
 
       - name: Begin
         run: echo "Beginning unit tests on main.py"
