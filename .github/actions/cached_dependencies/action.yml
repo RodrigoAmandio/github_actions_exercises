@@ -7,7 +7,12 @@ inputs:
     description: 'Wheter the dependencies must be cached or not'
     required: false
     default: 'true'
-    
+
+outputs:
+  used-cache:
+    description: 'Whether the cache was used'
+    value: ${{ steps.install.outputs.cache }}
+
 runs:
   using: 'composite' #Pode ser JavaScript ou Docker
   steps:
@@ -25,7 +30,9 @@ runs:
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }} # A unique identifier for the cache (e.g., based on OS and hash of requirements.txt)
     
     - name: Install dependencies
+      id: install
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        echo "cache='${{inputs.caching}}'" >> GITHUB_OUTPUT
       shell: bash # Deve ser adicionado em custom actions todas as vezes que houver um comando run, como este.
