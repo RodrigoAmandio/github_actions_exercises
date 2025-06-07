@@ -36,6 +36,8 @@ jobs:
         # Sempre use abaixo do checkout
       - name: Load and Cache Dependencies
         uses: ./.github/actions/cached_dependencies # Não é necessário apontar o arquivo neste caso. O Github sempre vai buscar o arquivo actions.yml no prefixo informado.
+        with:
+          caching: 'true' #Passa essa variável como input para a custom action
 
       - name: Begin
         run: echo "Beginning to check code formatting"
@@ -75,6 +77,8 @@ jobs:
 
       - name: Load and Cache Dependencies
         uses: ./.github/actions/cached_dependencies
+        with:
+          caching: 'true'
 
       - name: Begin
         run: echo "Beginning unit tests on main.py"

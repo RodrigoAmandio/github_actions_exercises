@@ -1,5 +1,13 @@
 name: Get and Cache Dependencies
 description: Get dependencies and cache them
+
+# Variáveis de input usadas no código
+inputs:
+  caching:
+    description: 'Wheter the dependencies must be cached or not'
+    required: false
+    default: 'true'
+    
 runs:
   using: 'composite' #Pode ser JavaScript ou Docker
   steps:
@@ -9,6 +17,8 @@ runs:
     # As dependências somente serão instaladas novamente caso o conteúdo de requirements.txt seja alterado
     # Não use cache para artifacts
     - name: Caching Dependencies # This caches the downloaded packages in ~/.cache/pip. If requirements.txt hasn’t changed, it reuses the cache.
+      if: inputs.caching == 'true'
+      id: cache
       uses: actions/cache@v3
       with:
         path: ~/.cache/pip # What to cache (file or folder path)
