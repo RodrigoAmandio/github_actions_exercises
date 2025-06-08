@@ -11,6 +11,12 @@ on:
       - main
       # feature/** Branches que se iniciam com feature/...
 
+# Quando se conecta a alguma Cloud, as permissões abaixo precisam ser declaradas
+# Essa declaração ocorre tanto no arquivo principal como nos reusable workflows que são chamados
+permissions:
+  id-token: write
+  contents: read
+  
 # Environment Variables
 # Quando declaradas no início, ficam disponíveis para todas as etapas do workflow
 # Podem também ser declaradas dentro de cada respectivo job
