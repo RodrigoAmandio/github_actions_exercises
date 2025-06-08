@@ -146,7 +146,11 @@ jobs:
     uses: ./.github/workflows/aws-connection.yml # Endereço de onde está o workflow que será aproveitado aqui
     with:
       aws-region: "us-east-1" #Normalmente passado como hardcoded
-    secrets: # Passa as secrets para o workflow reutilizável
+    
+    # Passa as secrets para o workflow reutilizável
+    # Não é a forma mais recomendada, pois garante full access e isso não é bom do ponto de vista de governança
+    # Use OpenID para autenticar na Cloud: https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+    secrets: 
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
   

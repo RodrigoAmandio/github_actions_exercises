@@ -7,7 +7,8 @@ on:
         type: string
         default: us-east-1
     
-    secrets: # Secrets usadas neste workflow
+    # As secrets estão sendo importadas aqui para conhecimento acadêmico de que é possível, mas não serão usadas
+    secrets:
       AWS_ACCESS_KEY_ID:
         required: true
       
@@ -20,6 +21,10 @@ on:
         value: ${{ jobs.aws-interaction.outputs.message }}
 jobs:
   aws-interaction:
+    permissions:
+      id-token: write # Obrigatório quando se conecta via OpenID
+      contents: read  # Obrigatório para actions/checkout quando usado OpenID
+
     runs-on: ubuntu-latest
     outputs: # Output a nível de step
       message: ${{ steps.set-message.outputs.msg }}
@@ -28,9 +33,14 @@ jobs:
       - name: Set up AWS CLI
         uses: aws-actions/configure-aws-credentials@v2
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: arn:aws:iam::870256785503:role/github_rodrigo_amandio_role
           aws-region: ${{ inputs.aws-region }}
+          
+          # Variáveis sensíveis ficam armazenadas em secrets no Github
+          # Caso a conexão com a AWS fosse feita via secrets, seria feita habilitando essas chaves abaixo
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          
         
       - name: List all S3 buckets
         id: list-buckets
