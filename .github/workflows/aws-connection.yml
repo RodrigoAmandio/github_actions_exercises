@@ -1,0 +1,56 @@
+name: AWS interaction
+on: 
+  workflow_call: # Permite que este workflow seja usado em outros fluxos, como POO
+    inputs: # Variáveis de entrada deste workflow, como uma função
+      aws-region:
+        required: true
+        type: string
+        default: us-east-1
+    
+    # As secrets estão sendo importadas aqui para conhecimento acadêmico de que é possível, mas não serão usadas
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+
+    outputs: # Output que será retornado ao workflow que faz uso deste aqui
+      result-message:
+        description: "A message from the reusable workflow"
+        value: ${{ jobs.aws-interaction.outputs.message }}
+jobs:
+  aws-interaction:
+    permissions:
+      id-token: write # Obrigatório quando se conecta via OpenID
+      contents: read  # Obrigatório para actions/checkout quando usado OpenID
+
+    runs-on: ubuntu-latest
+    outputs: # Output a nível de step
+      message: ${{ steps.set-message.outputs.msg }}
+    environment: dev # Ambiente criado no Github para indicar de onde virão as secrets. É possível criar múltiplos ambientes como dev, homolog e prod e usá-los para obter as variáveis dinamicamente. É possível determinar um revisor para o step, prevenir auto-revisão, determinar um tempo para que o step seja executado (Como ocorre na GMUD), etc
+    steps:
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::870256785503:role/github_rodrigo_amandio_role
+          aws-region: ${{ inputs.aws-region }}
+          
+          # Variáveis sensíveis ficam armazenadas em secrets no Github
+          # Caso a conexão com a AWS fosse feita via secrets, seria feita habilitando essas chaves abaixo
+          # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          
+        
+      - name: List all S3 buckets
+        id: list-buckets
+        run: aws s3 ls
+      - name: Output Exception
+        # failure(), success(), always() e cancelled()
+        if: failure() && steps.list-buckets.outcome == 'failure'
+        run: echo "Houve uma falha ao listar os buckets na AWS
+      
+      - name: Set result message
+        id: set-message
+        run: echo "msg=Lista de buckets obtida" >> $GITHUB_OUTPUT
+ 

@@ -11,25 +11,52 @@ on:
       - main
       # feature/** Branches que se iniciam com feature/...
 
+# Quando se conecta a alguma Cloud, as permissões abaixo precisam ser declaradas
+# Essa declaração ocorre tanto no arquivo principal como nos reusable workflows que são chamados
+permissions:
+  id-token: write
+  contents: read
+  
+# Environment Variables
+# Quando declaradas no início, ficam disponíveis para todas as etapas do workflow
+# Podem também ser declaradas dentro de cada respectivo job
+# Environment Variables podem ser usadas dentro dos arquivos de workflow como também arquivos como .py para lógica de código, ex: os.environ['DB_HOST']
+env:
+  ENVIRONMENT: production
+
 jobs: 
-  check-formatting: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
-    runs-on: ubuntu-latest
+  check-formatting: # Este espaço pode receber qualquer nome. Será o nome que aparecerá na esteira
+    runs-on: ubuntu-latest # Cada job roda em uma máquina a parte. Este passo precisa ser repetido em cada um
+    
+    continue-on-error: true # Em um job matrix(iterações), se uma das iteraçoes falhar, as demais serão canceladas. Para prevenir isso, o comando continue-on-error é importante
+    
+    strategy:
+      matrix: # Funciona como um looping onde o código itera com as variáveis dentro de uma lista
+        python-version: [3.10, 3.11]
+    
     steps:
-      - name: Checkout code
+      - name: Checkout code # Este passo também necessita ser repetido a cada job
         uses: actions/checkout@v3 # GitHub Action used in workflows to check out your repository's code so subsequent steps in the workflow can access the files in it. It is like a download of the files.
+
+        # Uso de custom actions como parte de um job. Útil para tarefas repetitivas ao longo do código
+        # Sempre use abaixo do checkout
+      - name: Load and Cache Dependencies
+        id: cache-deps
+        uses: ./.github/actions/cached_dependencies # Não é necessário apontar o arquivo neste caso. O Github sempre vai buscar o arquivo actions.yml no prefixo informado.
+        with:
+          caching: 'true' #Passa essa variável como input para a custom action
+        
+        # Retorna um output de uma custom action
+      - name: Output from custom action
+        run: echo "Cache used:${{ steps.cache-deps.outputs.used-cache }}"
 
       - name: Begin
         run: echo "Beginning to check code formatting"
 
-      - name: Set up Python
+      - name: Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v4 # Instalar a linguagem que se deseja usar. Neste caso, python
         with:
-          python-version: '3.10'  # or any version you need
-
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install black isort mypy
+          python-version: ${{ matrix.python-version }}
 
       - name: Run Black (check only)
         run: |
@@ -41,34 +68,110 @@ jobs:
           echo "Checando a ordenação de imports com isort"
           isort --check .
 
-      - name: Run Isort (check only)
+      - name: Run Mypy (check only)
         run: |
           echo "Checando a estrutura do código com mypy"
           mypy --check python/main.py
   
-  unit-test: # Este espaço pode receber qualquer nome. Será no nome que aparecerá na esteira
+
+  unit-test:
     needs: check-formatting # Com esse comando, será possível uma execução em sequência. Sem ele, ambos ops steps seriam executados em paralelo
     runs-on: ubuntu-latest
-
+    outputs:
+      script-file: ${{ steps.publish.outputs.file_name }} # Estrutura: steps.id.outputs.output_name
+      # script-file é um nome que pode ser definido a critério do usuário
+      user-name: ${{ steps.publish.outputs.user_name }}
+      
     steps: 
       - name: Checkout code
-        uses: actions/checkout@v3 # GitHub Action used in workflows to check out your repository's code so subsequent steps in the workflow can access the files in it. It is like a download of the files.
+        uses: actions/checkout@v3
+
+      - name: Load and Cache Dependencies
+        uses: ./.github/actions/cached_dependencies
+        with:
+          caching: 'true'
 
       - name: Begin
         run: echo "Beginning unit tests on main.py"
 
       - name: Set up Python
-        uses: actions/setup-python@v4 # Instalar a linguagem que se deseja usar. Neste caso, python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.10'  # or any version you need
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
       - name: Run tests with coverage
-        run: |
+        run: | # O resultado do teste unitário será salvo em um arquivo coverage_report.txt na raiz do repo e disponibilizado com artefato para download, posteriormente
           coverage run -m unittest discover python/tests/
-          coverage report
+          coverage report > coverage_report.txt
+
+      - name: Upload coverage report # Esta operaçao é chamada de Upload, pois envia o arquivo para o fluxo para uso em outras etapas
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage_report.txt # Será liberado este arquivo para download ao final do workflow
+      
+      - name: Publish Execution Variables # Simula uma situação em que é possível disponibilizar a variável do nome do arquivo para uma etapa posterior, por exemplo, CD
+        id: publish
+        run: |
+          result=$(find python -maxdepth 1 -type f -name '*.py' -exec basename {} \;) 
+          echo "file_name=$result" >> $GITHUB_OUTPUT
+          echo "user_name=Rodrigo Amandio" >> $GITHUB_OUTPUT
+
+
+  deploy-simulation: # Essa etapa irá simular a obtençao de um artefato de uma etapa para a outra, para uso em um possível CD após fechamento de Pull Request
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get Github Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: . # Irá fazer o download do artefato para a raiz
+        
+      - name: Output Coverage Content
+        run: cat coverage_report.txt
+      
+      - name: Deploy
+        run: echo "Fazendo deploy do recurso, simulando uma etapa de CD após fechamento com sucesso de Pull Request"
+      
+      - name: Output Varibles From Previous unit-test # needs.nome-step.output.nome-output
+        run: |
+          echo "File Name=${{ needs.unit-test.outputs.script-file }}"
+          echo "User Name=${{ needs.unit-test.outputs.user-name }}"
+      
+      - name: Output Environment Variables
+        run: |
+          echo "Primeira forma de usar uma variável de ambiente: ${{env.ENVIRONMENT}}"
+          echo "Segunda forma de usar uma variável de ambiente (Não funciona em with): $ENVIRONMENT"
+  
+  # Exemplo de reusable workflows
+  # Reusable Workflows podem ser usado para rodar um job ou até um workflow inteiro
+  # A principal diferença entre reusable workflows e custom actions é que custom actions são parte de um job, como uma step. Já reusable workflows rodam um job ou workflow inteiro.
+  aws-interaction:
+    needs: deploy-simulation
+    uses: ./.github/workflows/aws-connection.yml # Endereço de onde está o workflow que será aproveitado aqui
+    with:
+      aws-region: "us-east-1" #Normalmente passado como hardcoded
+    
+    # Passa as secrets para o workflow reutilizável
+    # Não é a forma mais recomendada, pois garante full access e isso não é bom do ponto de vista de governança
+    # Use OpenID para autenticar na Cloud: https://docs.github.com/en/actions/security-for-github-actions/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services
+    secrets: 
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }} # Variáveis sensíveis ficam armazenadas em secrets no Github
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+  
+  # Retorna dados do reusable workflow
+  after-aws-interaction:
+    needs: aws-interaction
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output result from AWS Interaction
+        run: echo "Message from AWS interaction:${{ needs.aws-interaction.outputs.result-message }}"
+
+
+
+
+
+
+        
           
